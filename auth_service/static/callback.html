@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Callback</title>
+</head>
+<body>
+    <h1>Callback</h1>
+    <pre id="code"></pre>
+    <script>
+        const code = new URLSearchParams(window.location.search).get("code");
+        if (code) {
+            document.getElementById("code").textContent = "Fetching token...";
+            fetch(`/exchange?code=${code}`, {
+                method: "GET",
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("code").textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("code").textContent = JSON.stringify(error, null, 2);
+            });
+        } else {
+            document.getElementById("code").textContent = "No code found";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    <h1>Register</h1>
+    <form id="register-form">
+        <input type="text" name="email" placeholder="Email" id="email">
+        <input type="password" name="password" placeholder="Password" id="password">
+        <button type="submit">Register</button>
+    </form>
+    <script>
+        let redirect_url = new URLSearchParams(window.location.search).get("redirect_url");
+        if (redirect_url === null) {
+            // Redirect to login
+            redirect_url = "/login";
+        }
+        document.getElementById("register-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            fetch("/register", {
+                method: "POST",
+                body: JSON.stringify({ email, password }),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.detail !== undefined) {
+                    alert(JSON.stringify(data.detail));
+                    return;
+                }
+                if(data.sub === undefined) {
+                    throw new Error("Invalid response: " + JSON.stringify(data));
+                }
+                window.location.href = redirect_url;
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        });
+    </script>
+</body>
+</html>

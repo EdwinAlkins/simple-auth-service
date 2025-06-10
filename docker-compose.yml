@@ -1,0 +1,20 @@
+
+version: "3.9"
+services:
+  auth_service:
+    build:
+      context: .
+      dockerfile: dockers/Dockerfile
+    ports:
+      - "443:443"
+    environment:
+      - DATABASE_PATH=/app/data/auth.db
+      - SECRET_KEY=${SECRET_KEY:-CXbqQGirNME89MR7Kisb8aGNcLHQjHJ9kJMHnnKToAsBbNmYKbqzRp6yKLAF8jzp}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      - KEYFILE=/app/certs/key.pem
+      - CERTFILE=/app/certs/cert.pem
+      - AUTH_SERVICE_CONFIG=/app/config.toml
+    volumes:
+      - ./data:/app/data
+      - ./certs:/app/certs
+      - ./config.toml:/app/config.toml

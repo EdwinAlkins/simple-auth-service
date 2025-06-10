@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <div id="not-logged-in">
+        <h1>Welcome</h1>
+        <button id="login-btn">Login</button>
+    </div>
+    <div id="user-info" style="display:none;">
+        <h2>User information</h2>
+        <pre id="user-data"></pre>
+    </div>
+    <div id="error" style="color:red;"></div>
+    <script>
+        // 1. Gestion of the login button (redirect to the auth service)
+        document.getElementById("login-btn").onclick = function() {
+            const redirectUrl = window.location.origin + window.location.pathname;
+            window.location.href = `/login?redirect_url=${encodeURIComponent(redirectUrl)}`;
+        };
+
+        // 2. If we come back with a code in the URL, we exchange the code for a token then we retrieve the user information
+        async function handleAuthCallback() {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get("code");
+            if (!code) return;
+            document.getElementById("not-logged-in").style.display = "none";
+            document.getElementById("error").textContent = "Connexion en cours...";
+            try {
+                // Exchange the code for a token
+                const exchangeResp = await fetch(`/exchange?code=${code}`);
+                const exchangeData = await exchangeResp.json();
+                if (exchangeData.detail) {
+                    document.getElementById("error").textContent = exchangeData.detail;
+                    return;
+                }
+                const token = exchangeData.access_token;
+                if (!token) {
+                    document.getElementById("error").textContent = "Token exchange failed.";
+                    return;
+                }
+                // Retrieve the user information
+                const meResp = await fetch("/me", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const meData = await meResp.json();
+                if (meData.detail) {
+                    document.getElementById("error").textContent = meData.detail;
+                    return;
+                }
+                document.getElementById("user-info").style.display = "block";
+                document.getElementById("user-data").textContent = JSON.stringify(meData, null, 2);
+                document.getElementById("error").textContent = "";
+                // Remove the code from the URL
+                window.history.replaceState({}, "", window.location.pathname);
+            } catch (err) {
+                document.getElementById("error").textContent = "Error: " + err;
+            }
+        }
+        handleAuthCallback();
+    </script>
+</body>
+</html>

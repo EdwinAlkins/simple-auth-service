@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simpleAuthService"
+version = "1.0.0"
+authors = [{name = "Edwin Alkins", email = "william.nauroy@gmail.com"}]
+keywords = ["API REST", "Simple Auth Service"]
+license = "MIT"
+readme = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">=3.12"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+dependencies = [
+    "fastapi",
+    "pydantic",
+    "hypercorn",
+    "sqlalchemy",
+    "bcrypt",
+    "pyjwt",
+    "apscheduler",
+    "python-multipart",
+    "toml"
+]
+
+[project.optional-dependencies]
+dev = [
+    "black", 
+    "uvicorn"
+]
+test = [
+    "pytest",
+    "httpx"
+]
+
+[project.scripts]
+authapi = "auth_service.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.black]
+line-length = 88
+target-version = ['py312']
+skip-string-normalization = false

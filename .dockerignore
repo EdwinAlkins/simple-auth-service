@@ -1,0 +1,24 @@
+# backend
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+.env
+.env.template
+.git
+.gitignore
+dist/
+build/
+Dokerfile
+docker-compose.yml
+README.md
+*.egg-info/
+venv
+*.pem
+
+# frontend
+node_modules/
+.env.local
+certs/

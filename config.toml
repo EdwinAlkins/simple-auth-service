@@ -1,0 +1,9 @@
+[fastapi]
+allow_origins = ["http://localhost:8000", "https://localhost"]
+allow_headers = ["*"]
+
+[auth]
+allowed_redirect_urls = [
+    "http://localhost:8000/*",
+    "https://localhost/*"
+] 
