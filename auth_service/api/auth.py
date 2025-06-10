@@ -14,7 +14,7 @@ import auth_service.schemas.token as token_schema
 router = APIRouter()
 
 
-def get_token_session(
+def _get_token_session(
     db: Session, data: user_schema.UserCreate
 ) -> token_schema.TokenInfoWithCode:
     user = crud.get_user_by_email(db, data.email)
@@ -56,7 +56,7 @@ def get_token_session(
     )
 
 
-def update_token_session(
+def _update_token_session(
     db: Session, uuid_refresh_token: str
 ) -> token_schema.TokenInfoWithCode:
     token_session = crud.get_token_session_by_uuid_refresh_token(db, uuid_refresh_token)
@@ -111,7 +111,7 @@ async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db),
 ) -> token_schema.TokenInfo:
-    return get_token_session(
+    return _get_token_session(
         db,
         user_schema.UserCreate(email=form_data.username, password=form_data.password),
     )
@@ -122,7 +122,7 @@ async def login(
     data: user_schema.UserCreate,
     db: Session = Depends(get_db),
 ) -> token_schema.LoginCode:
-    session = get_token_session(db, data)
+    session = _get_token_session(db, data)
     return token_schema.LoginCode(code=session.code)
 
 
@@ -189,4 +189,4 @@ async def refresh_token(
     ):
         raise HTTPException(status_code=401, detail="Refresh token expired")
 
-    return update_token_session(db, uuid_refresh_token)
+    return _update_token_session(db, uuid_refresh_token)
