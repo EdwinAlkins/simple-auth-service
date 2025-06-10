@@ -22,12 +22,12 @@ scheduler = BackgroundScheduler()
 CONFIG = config_util.Config().config_toml
 
 # Use the values from the config file
-allow_origins = CONFIG.get("fastapi", {}).get("allow_origins", ["http://localhost:8000/*"])
+allow_origins = CONFIG.get("fastapi", {}).get(
+    "allow_origins", ["http://localhost:8000/*"]
+)
 allow_headers = CONFIG.get("fastapi", {}).get("allow_headers", ["*"])
 ALLOWED_REDIRECT_URLS = tuple(
-    CONFIG.get("auth", {}).get(
-        "allowed_redirect_urls", ["http://localhost:8000/*"]
-    )
+    CONFIG.get("auth", {}).get("allowed_redirect_urls", ["http://localhost:8000/*"])
 )
 
 application.add_middleware(

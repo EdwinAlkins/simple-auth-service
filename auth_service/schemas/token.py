@@ -13,10 +13,16 @@ class TokenData(pydantic.BaseModel):
 
 
 class TokenInfo(Token):
-    expires_in: datetime
+    access_token_expires_at: datetime
+    refresh_token_expires_at: datetime
+    refresh_token: str
 
     class Config:
         from_attributes = True
+
+
+class TokenInfoWithCode(TokenInfo):
+    code: str
 
 
 class LoginCode(pydantic.BaseModel):
@@ -24,3 +30,8 @@ class LoginCode(pydantic.BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class RefreshTokenData(pydantic.BaseModel):
+    uuid: str
+    expires_at: datetime

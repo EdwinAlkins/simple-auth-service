@@ -13,6 +13,7 @@
     <div id="user-info" style="display:none;">
         <h2>User information</h2>
         <pre id="user-data"></pre>
+        <button id="refresh-btn">Refresh</button>
     </div>
     <div id="error" style="color:red;"></div>
     <script>
@@ -21,7 +22,35 @@
             const redirectUrl = window.location.origin + window.location.pathname;
             window.location.href = `/login?redirect_url=${encodeURIComponent(redirectUrl)}`;
         };
+        async function callRefreshToken(refreshToken) {
+            const refreshResp = await fetch("/refresh", {
+                headers: { "Authorization": `Bearer ${refreshToken}` },
+                method: "POST"
+            });
+            const refreshData = await refreshResp.json();
+            if (refreshData.detail) {
+                document.getElementById("error").textContent = refreshData.detail;
+                return;
+            }
+            document.getElementById("refresh-btn").onclick = function() {
+                callRefreshToken(refreshData.refresh_token);
+            };
+            callMe(refreshData.access_token);
+        }
 
+        async function callMe(token) {
+            const meResp = await fetch("/me", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            const meData = await meResp.json();
+            if (meData.detail) {
+                document.getElementById("error").textContent = meData.detail;
+                return;
+            }
+            document.getElementById("user-info").style.display = "block";
+            document.getElementById("user-data").textContent = JSON.stringify(meData, null, 2);
+            document.getElementById("error").textContent = "";
+        }
         // 2. If we come back with a code in the URL, we exchange the code for a token then we retrieve the user information
         async function handleAuthCallback() {
             const params = new URLSearchParams(window.location.search);
@@ -43,19 +72,12 @@
                     return;
                 }
                 // Retrieve the user information
-                const meResp = await fetch("/me", {
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
-                const meData = await meResp.json();
-                if (meData.detail) {
-                    document.getElementById("error").textContent = meData.detail;
-                    return;
-                }
-                document.getElementById("user-info").style.display = "block";
-                document.getElementById("user-data").textContent = JSON.stringify(meData, null, 2);
-                document.getElementById("error").textContent = "";
+                callMe(token);
                 // Remove the code from the URL
                 window.history.replaceState({}, "", window.location.pathname);
+                document.getElementById("refresh-btn").onclick = function() {
+                    callRefreshToken(exchangeData.refresh_token);
+                };
             } catch (err) {
                 document.getElementById("error").textContent = "Error: " + err;
             }

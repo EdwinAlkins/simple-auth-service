@@ -1,5 +1,6 @@
 import os
 import toml
+from auth_service.core.security import validate_secret_key, generate_secure_key
 
 DEFAULT_CONFIG_PATH = "config.toml"
 
@@ -31,6 +32,7 @@ class Config:
     __slots__ = [
         "secret_key",
         "access_token_expire_minutes",
+        "refresh_token_expire_minutes",
         "database_path",
         "keyfile",
         "certfile",
@@ -38,14 +40,29 @@ class Config:
     ]
 
     def __init__(self):
+        # Get the secret key
         self.secret_key = os.getenv("SECRET_KEY")
+
+        # If no secret key, generate a new one
         if not self.secret_key:
-            raise ValueError("SECRET_KEY is not set")
+            self.secret_key = generate_secure_key()
+            os.environ["SECRET_KEY"] = self.secret_key
+
+        # Validation de la clé secrète
+        is_valid, error_message = validate_secret_key(self.secret_key)
+        if not is_valid:
+            raise ValueError(f"SECRET_KEY invalide : {error_message}")
+
+        # Configuration des autres paramètres
         self.database_path = os.getenv("DATABASE_PATH", "data/auth.db")
         if not os.path.exists(os.path.dirname(self.database_path)):
             os.makedirs(os.path.dirname(self.database_path))
+
         self.access_token_expire_minutes = int(
             os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30)
+        )
+        self.refresh_token_expire_minutes = int(
+            os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES", 60 * 24 * 7)  # 7 days by default
         )
         self.keyfile = os.getenv("KEYFILE", "certs/key.pem")
         self.certfile = os.getenv("CERTFILE", "certs/cert.pem")

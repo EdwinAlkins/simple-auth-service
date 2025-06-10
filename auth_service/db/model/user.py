@@ -18,8 +18,11 @@ class TokenSession(Base):
     __tablename__ = "token_sessions"
 
     id = Column(Integer, primary_key=True, index=True)
+    uuid_refresh_token = Column(String, index=True)
     code = Column(String, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     token = Column(String, index=True)
-    expires_at = Column(DateTime)
+    refresh_token = Column(String)
+    access_token_expires_at = Column(DateTime)
+    refresh_token_expires_at = Column(DateTime)
     created_at = Column(DateTime)

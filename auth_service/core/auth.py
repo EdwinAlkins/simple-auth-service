@@ -1,21 +1,22 @@
 import jwt
-from datetime import timezone
+from datetime import timezone, datetime
 from fastapi.security import OAuth2PasswordBearer
 from fnmatch import fnmatch
 
 import auth_service.schemas.token as token_schema
 import auth_service.core.config as config
 
-SECRET_KEY = config.Config.get_config().secret_key
+SECRET_KEY = config.Config().secret_key
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = config.Config().access_token_expire_minutes
+REFRESH_TOKEN_EXPIRE_MINUTES = config.Config().refresh_token_expire_minutes
 
 OAUTH2_SCHEME = OAuth2PasswordBearer(tokenUrl="token")
 
 
-def create_access_token(data: dict) -> str:
+def create_token(data: dict) -> str:
     """
-    Create an access token for the given data.
+    Create an token for the given data.
 
     Parameters:
         data: dict
@@ -26,6 +27,13 @@ def create_access_token(data: dict) -> str:
     to_encode = data.copy()
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+def decode_token(token: str) -> dict:
+    """
+    Decode the given token and return the payload.
+    """
+    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
 
 def verify_token(token: str, credentials_exception) -> token_schema.TokenData:
@@ -68,7 +76,7 @@ def is_allowed_redirect_url(redirect_url: str, allowed_patterns: tuple) -> bool:
     return False
 
 
-def compare_datetimes_aware(dt1, dt2):
+def compare_datetimes_aware(dt1: int | datetime, dt2: int | datetime) -> int:
     """
     Compare two datetime objects, making both offset-aware (UTC) if needed.
     Returns:
@@ -76,6 +84,10 @@ def compare_datetimes_aware(dt1, dt2):
          0 if dt1 == dt2
          1 if dt1 > dt2
     """
+    if isinstance(dt1, int):
+        dt1 = datetime.fromtimestamp(dt1)
+    if isinstance(dt2, int):
+        dt2 = datetime.fromtimestamp(dt2)
     if dt1.tzinfo is None:
         dt1 = dt1.replace(tzinfo=timezone.utc)
     if dt2.tzinfo is None:
@@ -92,4 +104,7 @@ def decode_token(token: str) -> dict:
     """
     Decode the given token and return the payload.
     """
-    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    try:
+        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    except jwt.JWTError:
+        raise Exception("Invalid token")

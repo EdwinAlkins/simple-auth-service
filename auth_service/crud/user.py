@@ -20,6 +20,10 @@ def get_user_by_email(db: Session, email: str) -> user_model.User | None:
     )
 
 
+def get_user_by_id(db: Session, user_id: int) -> user_model.User | None:
+    return db.query(user_model.User).filter(user_model.User.id == user_id).one_or_none()
+
+
 def create_user(db: Session, user: user_schema.UserCreate) -> user_model.User:
     hashed_password = bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt())
     hashed_password = hashed_password.decode("utf-8")
@@ -48,7 +52,10 @@ def get_token_session_by_code(db: Session, code: str) -> user_model.TokenSession
         return (
             db.query(user_model.TokenSession)
             .filter(user_model.TokenSession.code == code)
-            .filter(user_model.TokenSession.expires_at > datetime.now(timezone.utc))
+            .filter(
+                user_model.TokenSession.access_token_expires_at
+                > datetime.now(timezone.utc)
+            )
             .first()
         )
     except Exception as e:
@@ -57,15 +64,72 @@ def get_token_session_by_code(db: Session, code: str) -> user_model.TokenSession
 
 
 def create_token_session(
-    db: Session, code: str, token: str, user_id: int, expires_at: datetime
+    db: Session,
+    code: str,
+    uuid_refresh_token: str,
+    token: str,
+    refresh_token: str,
+    user_id: int,
+    access_token_expires_at: datetime,
+    refresh_token_expires_at: datetime,
 ) -> user_model.TokenSession:
     db_token_session = user_model.TokenSession(
-        code=code, token=token, user_id=user_id, expires_at=expires_at
+        code=code,
+        uuid_refresh_token=uuid_refresh_token,
+        token=token,
+        refresh_token=refresh_token,
+        user_id=user_id,
+        access_token_expires_at=access_token_expires_at,
+        refresh_token_expires_at=refresh_token_expires_at,
     )
     db.add(db_token_session)
     db.commit()
     db.refresh(db_token_session)
     return db_token_session
+
+
+def update_token_session(
+    db: Session,
+    id_token_session: int,
+    code: str,
+    uuid_refresh_token: str,
+    token: str,
+    refresh_token: str,
+    access_token_expires_at: datetime,
+    refresh_token_expires_at: datetime,
+) -> user_model.TokenSession:
+    db_token_session = get_token_session_by_id(db, id_token_session)
+    if not db_token_session:
+        raise Exception("Token session not found")
+    db_token_session.code = code
+    db_token_session.uuid_refresh_token = uuid_refresh_token
+    db_token_session.token = token
+    db_token_session.refresh_token = refresh_token
+    db_token_session.access_token_expires_at = access_token_expires_at
+    db_token_session.refresh_token_expires_at = refresh_token_expires_at
+    db.commit()
+    db.refresh(db_token_session)
+    return db_token_session
+
+
+def get_token_session_by_id(
+    db: Session, id_token_session: int
+) -> user_model.TokenSession | None:
+    return (
+        db.query(user_model.TokenSession)
+        .filter(user_model.TokenSession.id == id_token_session)
+        .one_or_none()
+    )
+
+
+def get_token_session_by_uuid_refresh_token(
+    db: Session, uuid_refresh_token: str
+) -> user_model.TokenSession | None:
+    return (
+        db.query(user_model.TokenSession)
+        .filter(user_model.TokenSession.uuid_refresh_token == uuid_refresh_token)
+        .one_or_none()
+    )
 
 
 def delete_token_session_expired(db: Session) -> None:

@@ -9,7 +9,7 @@ services:
       - "443:443"
     environment:
       - DATABASE_PATH=/app/data/auth.db
-      - SECRET_KEY=${SECRET_KEY:-CXbqQGirNME89MR7Kisb8aGNcLHQjHJ9kJMHnnKToAsBbNmYKbqzRp6yKLAF8jzp}
+      - SECRET_KEY=${SECRET_KEY:-}
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
       - KEYFILE=/app/certs/key.pem
       - CERTFILE=/app/certs/cert.pem
