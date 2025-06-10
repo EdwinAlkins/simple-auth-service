@@ -81,6 +81,7 @@ def create_token_session(
         user_id=user_id,
         access_token_expires_at=access_token_expires_at,
         refresh_token_expires_at=refresh_token_expires_at,
+        created_at=datetime.now(timezone.utc),
     )
     db.add(db_token_session)
     db.commit()

@@ -49,7 +49,7 @@ async def startup_event():
         db = next(get_db())
         crud.delete_token_session_expired(db)
 
-    scheduler.add_job(local_delete_token_session_expired, "interval", minutes=30)
+    scheduler.add_job(local_delete_token_session_expired, "interval", minutes=10)
     scheduler.start()
     auth_service.db.model.create_tables.create_all()
 
