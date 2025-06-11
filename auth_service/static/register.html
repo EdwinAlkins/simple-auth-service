@@ -4,13 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    <style>
+        .title {
+            text-align: center;
+        }
+        #register-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #register-form input {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #register-form button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        #register-form button:hover {
+            background-color: #0056b3;
+        }
+        #register-form button:active {
+            background-color: #004494;
+        }
+        #register-form button:focus {
+            outline: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>Register</h1>
+    <h1 class="title">Register</h1>
     <form id="register-form">
         <input type="text" name="email" placeholder="Email" id="email">
         <input type="password" name="password" placeholder="Password" id="password">
-        <button type="submit">Register</button>
+        <button type="submit" id="register-btn">Register</button>
     </form>
     <script>
         let redirect_url = new URLSearchParams(window.location.search).get("redirect_url");

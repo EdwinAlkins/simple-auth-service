@@ -135,6 +135,7 @@ def get_token_session_by_uuid_refresh_token(
 
 def delete_token_session_expired(db: Session) -> None:
     db.query(user_model.TokenSession).filter(
-        user_model.TokenSession.expires_at < datetime.now(timezone.utc)
+        user_model.TokenSession.refresh_token_expires_at
+        < datetime.now(timezone.utc)
     ).delete()
     db.commit()

@@ -4,13 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <style>
+        .title {
+            text-align: center;
+        }
+        #login-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #login-form input {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #login-form button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        #login-form button:hover {
+            background-color: #0056b3;
+        }
+        #login-form button:active {
+            background-color: #004494;
+        }
+        #login-form button:focus {
+            outline: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>Login</h1>
+    <h1 class="title">Login</h1>
     <form id="login-form">
         <input type="text" name="email" placeholder="Email" id="email">
         <input type="password" name="password" placeholder="Password" id="password">
-        <button type="submit">Login</button>
+        <button type="submit" id="login-btn">Login</button>
     </form>
     <script>
         let redirect_url = new URLSearchParams(window.location.search).get("redirect_url");
