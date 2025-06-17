@@ -126,6 +126,15 @@ async def login(
     return token_schema.LoginCode(code=session.code)
 
 
+@router.post("/logout", status_code=204)
+async def logout(
+    token: Annotated[str, Depends(auth_core.OAUTH2_SCHEME)],
+    db: Session = Depends(get_db),
+) -> None:
+    crud.delete_token_session(db, token)
+    return None
+
+
 @router.get("/exchange")
 async def get_token(code: str, db: Session = Depends(get_db)) -> token_schema.TokenInfo:
     token_session = crud.get_token_session_by_code(db, code)

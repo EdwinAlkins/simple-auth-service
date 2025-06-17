@@ -1,9 +1,10 @@
 [fastapi]
-allow_origins = ["http://localhost:8000", "https://localhost"]
+allow_origins = ["http://localhost:8000", "https://localhost", "http://localhost:5173"]
 allow_headers = ["*"]
 
 [auth]
 allowed_redirect_urls = [
     "http://localhost:8000/*",
-    "https://localhost/*"
+    "https://localhost/*",
+    "http://localhost:5173/*"
 ] 

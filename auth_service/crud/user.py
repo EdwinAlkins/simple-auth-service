@@ -139,3 +139,10 @@ def delete_token_session_expired(db: Session) -> None:
         < datetime.now(timezone.utc)
     ).delete()
     db.commit()
+
+
+def delete_token_session(db: Session, token: str) -> None:
+    db.query(user_model.TokenSession).filter(
+        user_model.TokenSession.token == token
+    ).delete()
+    db.commit()
